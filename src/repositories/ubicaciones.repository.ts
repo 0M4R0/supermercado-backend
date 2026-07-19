@@ -111,6 +111,7 @@ export async function updateLocation(
         .maybeSingle();
 }
 
+// This function sets the other locations to false when one is set as default
 export async function clearDefaultLocations(
     supabaseUser: SupabaseClient,
     userId: string,
@@ -127,9 +128,10 @@ export async function clearDefaultLocations(
         query = query.neq("id", exceptId);
     }
 
-    return query;
+    return await query;
 }
 
+// Soft delete a location by changing the activo status
 export async function softDeleteLocation(
     supabaseUser: SupabaseClient,
     userId: string,
