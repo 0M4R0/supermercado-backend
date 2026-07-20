@@ -8,6 +8,7 @@ import carritoRoutes from "./routes/carrito.routes.js";
 import ubicacionesRoutes from "./routes/ubicaciones.routes.js";
 import metodosPagoRoutes from "./routes/metodos-pago.routes.js";
 import checkoutRoutes from "./routes/checkout.routes.js";
+import pedidosRoutes from "./routes/pedidos.routes.js";
 
 const app = express();
 
@@ -20,5 +21,6 @@ app.use("/api/carrito", carritoRoutes);
 app.use("/api/ubicaciones", ubicacionesRoutes);
 app.use("/api/payment-methods", metodosPagoRoutes);
 app.use("/api/checkout", checkoutRoutes);
+app.use("/api/pedidos", pedidosRoutes);
 
 export default app;
