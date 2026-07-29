@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import {
+    apiAuthenticatedLimiter,
+    apiLimiter,
+} from "../middlewares/rate-limit.js";
+import {
     getPaymentMethods,
     postPaymentMethod,
     putPaymentMethod,
@@ -9,11 +13,11 @@ import {
 
 const router = Router();
 
-router.use(authMiddleware);
+router.use(authMiddleware, apiAuthenticatedLimiter);
 
 router.get("/", getPaymentMethods);
-router.post("/", postPaymentMethod);
-router.put("/:id", putPaymentMethod);
-router.delete("/:id", removePaymentMethod);
+router.post("/", apiLimiter, postPaymentMethod);
+router.put("/:id", apiLimiter, putPaymentMethod);
+router.delete("/:id", apiLimiter, removePaymentMethod);
 
 export default router;

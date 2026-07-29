@@ -1,6 +1,10 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 import {
+    apiAuthenticatedLimiter,
+    apiLimiter,
+} from "../middlewares/rate-limit.js";
+import {
     getUbicacion,
     getUbicaciones,
     postUbicacion,
@@ -10,12 +14,12 @@ import {
 
 const router = Router();
 
-router.use(authMiddleware);
+router.use(authMiddleware, apiAuthenticatedLimiter);
 
 router.get("/", getUbicaciones);
 router.get("/:id", getUbicacion);
-router.post("/", postUbicacion);
-router.put("/:id", putUbicacion);
-router.delete("/:id", removeUbicacion);
+router.post("/", apiLimiter, postUbicacion);
+router.put("/:id", apiLimiter, putUbicacion);
+router.delete("/:id", apiLimiter, removeUbicacion);
 
 export default router;
