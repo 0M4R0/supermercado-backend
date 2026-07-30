@@ -52,12 +52,12 @@ function buildCartSnapshot(
 async function ensureActiveCart(
     supabaseUser: SupabaseClient,
     userId: string
-): Promise<{ carrito_id: number } | { error: string }> {
+): Promise<{ carrito_id: number }> {
     const { data: existing, error: fetchError } = await findActiveCart(
         supabaseUser,
         userId
     );
-    if (fetchError) return { error: fetchError.message };
+    if (fetchError) throw fetchError;
 
     if (existing) return { carrito_id: existing.carrito_id };
 
@@ -66,7 +66,7 @@ async function ensureActiveCart(
         userId
     );
 
-    if (createError) return { error: createError.message };
+    if (createError) throw createError;
     return { carrito_id: created.carrito_id };
 }
 
@@ -79,7 +79,7 @@ async function verifyCartItemOwnership(
         supabaseUser,
         userId
     );
-    if (cartError) return { error: cartError.message, status: 500 as const };
+    if (cartError) throw cartError;
     if (!carrito) return { error: "Carrito no encontrado", status: 404 as const };
 
     const { data: articulo, error: itemError } = await findCartItemById(
@@ -88,7 +88,7 @@ async function verifyCartItemOwnership(
         carrito.carrito_id
     );
 
-    if (itemError) return { error: itemError.message, status: 500 as const };
+    if (itemError) throw itemError;
     if (!articulo) {
         return { error: "Artículo no encontrado en el carrito", status: 404 as const };
     }
@@ -101,9 +101,7 @@ export async function getCarrito(
     userId: string
 ): Promise<ServiceResult<GetCarritoData>> {
     const { data, error } = await findCartWithItems(supabaseUser, userId);
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
 
     if (!data) {
         return {
@@ -158,9 +156,6 @@ export async function addToCarrito(
     }
 
     const cartResult = await ensureActiveCart(supabaseUser, userId);
-    if ("error" in cartResult) {
-        return { success: false, status: 500, error: cartResult.error };
-    }
 
     const { data: existing, error: existingError } = await findCartItemByProduct(
         supabaseUser,
@@ -168,9 +163,7 @@ export async function addToCarrito(
         productoId
     );
 
-    if (existingError) {
-        return { success: false, status: 500, error: existingError.message };
-    }
+    if (existingError) throw existingError;
 
     if (existing) {
         const newQty = existing.cantidad + qty;
@@ -188,9 +181,7 @@ export async function addToCarrito(
             }
         );
 
-        if (updateError) {
-            return { success: false, status: 500, error: updateError.message };
-        }
+        if (updateError) throw updateError;
     } else {
         const { error: insertError } = await insertCartItem(supabaseUser, {
             carrito_id: cartResult.carrito_id,
@@ -200,18 +191,14 @@ export async function addToCarrito(
             descuento_aplicado: 0,
         });
 
-        if (insertError) {
-            return { success: false, status: 500, error: insertError.message };
-        }
+        if (insertError) throw insertError;
     }
 
     const { data: carrito, error: cartError } = await findCartWithItems(
         supabaseUser,
         userId
     );
-    if (cartError) {
-        return { success: false, status: 500, error: cartError.message };
-    }
+    if (cartError) throw cartError;
 
     return {
         success: true,
@@ -264,17 +251,13 @@ export async function updateCarritoItem(
         actualizado_en: new Date().toISOString(),
     });
 
-    if (updateError) {
-        return { success: false, status: 500, error: updateError.message };
-    }
+    if (updateError) throw updateError;
 
     const { data: carrito, error: cartError } = await findCartWithItems(
         supabaseUser,
         userId
     );
-    if (cartError) {
-        return { success: false, status: 500, error: cartError.message };
-    }
+    if (cartError) throw cartError;
 
     return {
         success: true,
@@ -309,17 +292,13 @@ export async function removeFromCarrito(
 
     const { error: deleteError } = await deleteCartItem(supabaseUser, articuloId);
 
-    if (deleteError) {
-        return { success: false, status: 500, error: deleteError.message };
-    }
+    if (deleteError) throw deleteError;
 
     const { data: carrito, error: cartError } = await findCartWithItems(
         supabaseUser,
         userId
     );
-    if (cartError) {
-        return { success: false, status: 500, error: cartError.message };
-    }
+    if (cartError) throw cartError;
 
     return {
         success: true,
@@ -339,9 +318,7 @@ export async function clearCarrito(
         supabaseUser,
         userId
     );
-    if (cartError) {
-        return { success: false, status: 500, error: cartError.message };
-    }
+    if (cartError) throw cartError;
 
     if (!carrito) {
         return {
@@ -361,9 +338,7 @@ export async function clearCarrito(
         carrito.carrito_id
     );
 
-    if (deleteError) {
-        return { success: false, status: 500, error: deleteError.message };
-    }
+    if (deleteError) throw deleteError;
 
     return {
         success: true,

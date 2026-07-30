@@ -18,7 +18,7 @@ async function startServer() {
     const data = await response.json();
     console.log('Supabase OK:', data.version);
 
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); 
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {
     console.error("Supabase connection failed: ", error);
     process.exit(1);

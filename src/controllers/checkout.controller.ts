@@ -13,9 +13,9 @@ function sendServiceResult<T>(res: Response, result: ServiceResult<T>) {
 
 export const postCheckout = async (req: Request, res: Response) => {
     const result = await checkout(
-        req.supabaseUser!,
-        req.user!.id,
-        (req.body ?? {}) as Record<string, unknown>
+      req.supabaseUser!,
+      req.user!.id,
+      (req.body ?? {}) as Record<string, unknown>
     );
     return sendServiceResult(res, result);
 };

@@ -156,9 +156,7 @@ async function assertCardMetodoPago(
     metodoPagoId: number
 ): Promise<ServiceResult<null>> {
     const { data, error } = await findMetodoPagoById(supabaseUser, metodoPagoId);
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     if (!data || !data.activo) {
         return {
             success: false,
@@ -305,9 +303,7 @@ export async function listPaymentMethods(
     userId: string
 ): Promise<ServiceResult<PaymentMethodPublic[]>> {
     const { data, error } = await findUserPaymentMethods(supabaseUser, userId);
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     const rows = (data ?? []) as UsuarioMetodoPagoRow[];
     return {
         success: true,
@@ -335,9 +331,7 @@ export async function createPaymentMethod(
         ...validated.data,
     });
 
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
 
     return {
         success: true,
@@ -363,9 +357,7 @@ export async function updatePaymentMethod(
         userId,
         idResult.data
     );
-    if (findError) {
-        return { success: false, status: 500, error: findError.message };
-    }
+    if (findError) throw findError;
     if (!existing) {
         return {
             success: false,
@@ -389,9 +381,7 @@ export async function updatePaymentMethod(
         validated.data
     );
 
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     if (!data) {
         return {
             success: false,
@@ -420,9 +410,7 @@ export async function deletePaymentMethod(
         userId,
         idResult.data
     );
-    if (findError) {
-        return { success: false, status: 500, error: findError.message };
-    }
+    if (findError) throw findError;
     if (!existing) {
         return {
             success: false,
@@ -436,9 +424,7 @@ export async function deletePaymentMethod(
         userId,
         idResult.data
     );
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     if (!data) {
         return {
             success: false,

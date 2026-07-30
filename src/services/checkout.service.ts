@@ -121,7 +121,7 @@ function parsePaymentSelection(
     };
 }
 
-function mapRpcError(message: string): { status: number; error: string } {
+function mapRpcError(message: string): { status: number; error: string } | undefined {
     const msg = message || "Error al crear el pedido";
 
     if (/no autenticado/i.test(msg)) {
@@ -152,7 +152,7 @@ function mapRpcError(message: string): { status: number; error: string } {
         return { status: 409, error: msg };
     }
 
-    return { status: 500, error: msg };
+    return undefined;
 }
 
 function normalizeRpcResult(data: unknown): CreateOrderFromCartResult | null {
@@ -186,9 +186,7 @@ async function resolveEstadoPagoId(
             supabaseUser,
             fromBody.value
         );
-        if (error) {
-            return { success: false, status: 500, error: error.message };
-        }
+        if (error) throw error;
         if (!data) {
             return {
                 success: false,
@@ -203,15 +201,9 @@ async function resolveEstadoPagoId(
         supabaseUser,
         DEFAULT_ESTADO_PAGO
     );
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     if (!data) {
-        return {
-            success: false,
-            status: 500,
-            error: `No se encontró el estado de pago "${DEFAULT_ESTADO_PAGO}"`,
-        };
+        throw new Error("No se encontró el estado de pago predeterminado");
     }
     return { success: true, status: 200, data: data.id as number };
 }
@@ -244,9 +236,7 @@ export async function checkout(
         userId,
         ubicacionId.value!
     );
-    if (ubicacionError) {
-        return { success: false, status: 500, error: ubicacionError.message };
-    }
+    if (ubicacionError) throw ubicacionError;
     if (!ubicacion) {
         return {
             success: false,
@@ -262,9 +252,7 @@ export async function checkout(
             userId,
             payment.data.usuarioMetodoPagoId
         );
-        if (cardError) {
-            return { success: false, status: 500, error: cardError.message };
-        }
+        if (cardError) throw cardError;
         if (!card) {
             return {
                 success: false,
@@ -277,9 +265,7 @@ export async function checkout(
             supabaseUser,
             payment.data.metodoPagoId
         );
-        if (metodoError) {
-            return { success: false, status: 500, error: metodoError.message };
-        }
+        if (metodoError) throw metodoError;
         if (!metodo || !metodo.activo) {
             return {
                 success: false,
@@ -302,16 +288,13 @@ export async function checkout(
 
     if (error) {
         const mapped = mapRpcError(error.message);
-        return { success: false, status: mapped.status, error: mapped.error };
+        if (mapped) return { success: false, status: mapped.status, error: mapped.error };
+        throw error;
     }
 
     const order = normalizeRpcResult(data);
     if (!order) {
-        return {
-            success: false,
-            status: 500,
-            error: "La orden se procesó pero no se recibió un resultado válido",
-        };
+        throw new Error("La orden se procesó sin un resultado válido");
     }
 
     return {

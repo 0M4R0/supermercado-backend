@@ -19,8 +19,8 @@ const app = express();
 app.use(helmet());
 
 // If production, then use frontend url. If not production, then use these origins
-const ALLOWED_ORIGINS = process.env.NODE_ENV === 'production' 
-    ? [process.env.FRONTEND_URL].filter(Boolean) 
+const ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
+    ? [process.env.FRONTEND_URL].filter(Boolean)
     : ["http://localhost:5173"];
 
 const corsOptions = {

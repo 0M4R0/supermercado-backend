@@ -252,9 +252,7 @@ export async function listUbicaciones(
     userId: string
 ): Promise<ServiceResult<UbicacionRow[]>> {
     const { data, error } = await findLocationsByUser(supabaseUser, userId);
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     return { success: true, status: 200, data: (data ?? []) as UbicacionRow[] };
 }
 
@@ -271,9 +269,7 @@ export async function getUbicacionById(
         userId,
         idResult.data
     );
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     if (!data) {
         return { success: false, status: 404, error: "Ubicación no encontrada" };
     }
@@ -292,9 +288,7 @@ export async function createUbicacion(
         supabaseUser,
         userId
     );
-    if (listError) {
-        return { success: false, status: 500, error: listError.message };
-    }
+    if (listError) throw listError;
 
     const isFirst = !(existing ?? []).length;
     const porDefecto = isFirst ? true : validated.data.por_defecto;
@@ -304,9 +298,7 @@ export async function createUbicacion(
             supabaseUser,
             userId
         );
-        if (clearError) {
-            return { success: false, status: 500, error: clearError.message };
-        }
+        if (clearError) throw clearError;
     }
 
     const { data, error } = await insertLocation(supabaseUser, {
@@ -315,9 +307,7 @@ export async function createUbicacion(
         por_defecto: porDefecto,
     });
 
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
 
     return { success: true, status: 201, data: data as UbicacionRow };
 }
@@ -339,9 +329,7 @@ export async function updateUbicacion(
         userId,
         idResult.data
     );
-    if (findError) {
-        return { success: false, status: 500, error: findError.message };
-    }
+    if (findError) throw findError;
     if (!current) {
         return { success: false, status: 404, error: "Ubicación no encontrada" };
     }
@@ -352,9 +340,7 @@ export async function updateUbicacion(
             userId,
             idResult.data
         );
-        if (clearError) {
-            return { success: false, status: 500, error: clearError.message };
-        }
+        if (clearError) throw clearError;
     }
 
     const { data, error } = await updateLocation(
@@ -364,9 +350,7 @@ export async function updateUbicacion(
         validated.data
     );
 
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     if (!data) {
         return { success: false, status: 404, error: "Ubicación no encontrada" };
     }
@@ -387,9 +371,7 @@ export async function deleteUbicacion(
         userId,
         idResult.data
     );
-    if (findError) {
-        return { success: false, status: 500, error: findError.message };
-    }
+    if (findError) throw findError;
     if (!current) {
         return { success: false, status: 404, error: "Ubicación no encontrada" };
     }
@@ -398,9 +380,7 @@ export async function deleteUbicacion(
         supabaseUser,
         idResult.data
     );
-    if (ordersError) {
-        return { success: false, status: 500, error: ordersError.message };
-    }
+    if (ordersError) throw ordersError;
     if ((count ?? 0) > 0) {
         return {
             success: false,
@@ -414,9 +394,7 @@ export async function deleteUbicacion(
         userId,
         idResult.data
     );
-    if (error) {
-        return { success: false, status: 500, error: error.message };
-    }
+    if (error) throw error;
     if (!data) {
         return { success: false, status: 404, error: "Ubicación no encontrada" };
     }

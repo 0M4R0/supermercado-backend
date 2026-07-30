@@ -21,28 +21,29 @@ export const getPaymentMethods = async (req: Request, res: Response) => {
 
 export const postPaymentMethod = async (req: Request, res: Response) => {
     const result = await createPaymentMethod(
-        req.supabaseUser!,
-        req.user!.id,
-        (req.body ?? {}) as Record<string, unknown>
+      req.supabaseUser!,
+      req.user!.id,
+      (req.body ?? {}) as Record<string, unknown>
     );
     return sendServiceResult(res, result);
 };
 
 export const putPaymentMethod = async (req: Request, res: Response) => {
     const result = await updatePaymentMethod(
-        req.supabaseUser!,
-        req.user!.id,
-        req.params.id as string,
-        (req.body ?? {}) as Record<string, unknown>
+      req.supabaseUser!,
+      req.user!.id,
+      req.params.id as string,
+      (req.body ?? {}) as Record<string, unknown>
     );
     return sendServiceResult(res, result);
 };
 
 export const removePaymentMethod = async (req: Request, res: Response) => {
     const result = await deletePaymentMethod(
-        req.supabaseUser!,
-        req.user!.id,
-        req.params.id as string
+      req.supabaseUser!,
+      req.user!.id,
+      req.params.id as string
     );
+
     return sendServiceResult(res, result);
 };

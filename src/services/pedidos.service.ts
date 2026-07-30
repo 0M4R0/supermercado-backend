@@ -24,14 +24,14 @@ export type PedidoListItem = {
     imagenes_productos: string[];
 };
 
-function mapRpcError(message: string): { status: number; error: string } {
+function mapRpcError(message: string): { status: number; error: string } | undefined {
     const msg = message || "Error al obtener los pedidos";
 
     if (/no autenticado/i.test(msg)) {
         return { status: 401, error: msg };
     }
 
-    return { status: 500, error: msg };
+    return undefined;
 }
 
 function normalizeOrderRows(data: unknown): UserOrderRow[] {
@@ -86,7 +86,8 @@ export async function listPedidos(
 
     if (error) {
         const mapped = mapRpcError(error.message);
-        return { success: false, status: mapped.status, error: mapped.error };
+        if (mapped) return { success: false, status: mapped.status, error: mapped.error };
+        throw error;
     }
 
     const rows = normalizeOrderRows(data);

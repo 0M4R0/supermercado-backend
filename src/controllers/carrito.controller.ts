@@ -28,6 +28,7 @@ export const addToCarrito = async (req: Request, res: Response) => {
         producto_id,
         cantidad
     );
+
     return sendServiceResult(res, result);
 };
 
@@ -39,6 +40,7 @@ export const updateCarritoItem = async (req: Request, res: Response) => {
         req.params.articuloId as string,
         cantidad
     );
+
     return sendServiceResult(res, result);
 };
 
@@ -48,6 +50,7 @@ export const removeFromCarrito = async (req: Request, res: Response) => {
         req.user!.id,
         req.params.articuloId as string
     );
+
     return sendServiceResult(res, result);
 };
 

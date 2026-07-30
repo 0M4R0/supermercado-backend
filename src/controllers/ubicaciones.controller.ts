@@ -16,8 +16,8 @@ function sendServiceResult<T>(res: Response, result: ServiceResult<T>) {
 }
 
 export const getUbicaciones = async (req: Request, res: Response) => {
-    const result = await listUbicaciones(req.supabaseUser!, req.user!.id);
-    return sendServiceResult(res, result);
+      const result = await listUbicaciones(req.supabaseUser!, req.user!.id);
+      return sendServiceResult(res, result);
 };
 
 export const getUbicacion = async (req: Request, res: Response) => {
@@ -30,22 +30,24 @@ export const getUbicacion = async (req: Request, res: Response) => {
 };
 
 export const postUbicacion = async (req: Request, res: Response) => {
-    const result = await createUbicacion(
+      const result = await createUbicacion(
         req.supabaseUser!,
         req.user!.id,
         (req.body ?? {}) as Record<string, unknown>
-    );
+      );
+
     return sendServiceResult(res, result);
 };
 
 export const putUbicacion = async (req: Request, res: Response) => {
-    const result = await updateUbicacion(
+  const result = await updateUbicacion(
         req.supabaseUser!,
         req.user!.id,
         req.params.id as string,
         (req.body ?? {}) as Record<string, unknown>
     );
-    return sendServiceResult(res, result);
+
+      return sendServiceResult(res, result);
 };
 
 export const removeUbicacion = async (req: Request, res: Response) => {
@@ -54,5 +56,6 @@ export const removeUbicacion = async (req: Request, res: Response) => {
         req.user!.id,
         req.params.id as string
     );
+
     return sendServiceResult(res, result);
 };
