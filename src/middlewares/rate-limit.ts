@@ -42,3 +42,14 @@ export const catalogLimiter = rateLimit({
         error: "Too many requests. Please try again later.",
     },
 });
+
+// Avoid sudden amount of requests [Catalog]
+export const slowLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    limit: 100,
+    standardHeaders: "draft-8",
+    legacyHeaders: false,
+    message: {
+        error: "Too many requests. Please try again later.",
+    },
+});
