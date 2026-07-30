@@ -47,16 +47,6 @@ const UBICACION_SELECT = `
     direccion_extra
 `;
 
-/** Order states that block deleting a location still in use. */
-const ACTIVE_PEDIDO_ESTADOS = [
-    "pendiente",
-    "confirmado",
-    "activo",
-    "en_proceso",
-    "preparando",
-    "en_camino",
-];
-
 export async function findLocationsByUser(
     supabaseUser: SupabaseClient,
     userId: string
@@ -151,9 +141,14 @@ export async function countActiveOrdersForLocation(
     supabaseUser: SupabaseClient,
     locationId: number
 ) {
-    return supabaseUser
-        .from("pedidos")
-        .select("id", { count: "exact", head: true })
-        .eq("ubicacion_id", locationId)
-        .in("estado", ACTIVE_PEDIDO_ESTADOS);
+    const { data, error } = await supabaseUser.rpc(
+        "contar_pedidos_activos_por_ubicacion",
+        { p_ubicacion_id: locationId }
+    );
+
+    if (error) {
+        return { count: null, error };
+    }
+
+    return { count: Number(data), error: null };
 }
