@@ -3,6 +3,7 @@ import {
     getUserOrders,
     type UserOrderRow,
 } from "../repositories/pedidos.repository.js";
+import type { PedidoListItemDto, PedidoDetailDto } from "../dtos/pedidos.dto.js";
 import {
     buildPaginatedResponse,
     parsePagination,
@@ -12,17 +13,6 @@ import {
 export type ServiceResult<T> =
     | { success: true; status: number; data: T }
     | { success: false; status: number; error: string };
-
-export type PedidoListItem = {
-    pedido_id: number;
-    codigo_seguimiento: string;
-    estado: string;
-    total: number;
-    fecha_pedido: string;
-    resumen_productos: string;
-    cantidad_productos: number;
-    imagenes_productos: string[];
-};
 
 function mapRpcError(message: string): { status: number; error: string } | undefined {
     const msg = message || "Error al obtener los pedidos";
@@ -58,7 +48,7 @@ function normalizeOrderRows(data: unknown): UserOrderRow[] {
     });
 }
 
-function toListItem(row: UserOrderRow): PedidoListItem {
+function toListItem(row: UserOrderRow): PedidoListItemDto {
     return {
         pedido_id: row.pedido_id,
         codigo_seguimiento: row.codigo_seguimiento,
@@ -75,7 +65,7 @@ export async function listPedidos(
     supabaseUser: SupabaseClient,
     pageRaw: unknown,
     limitRaw: unknown
-): Promise<ServiceResult<PaginatedResponse<PedidoListItem>>> {
+): Promise<ServiceResult<PaginatedResponse<PedidoListItemDto>>> {
     const pagination = parsePagination(pageRaw, limitRaw);
     const offset = (pagination.page - 1) * pagination.limit;
 
@@ -104,3 +94,5 @@ export async function listPedidos(
         ),
     };
 }
+
+// TODO: Add function to get the details of an order(pedido)

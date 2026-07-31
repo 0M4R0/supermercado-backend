@@ -8,21 +8,11 @@ import {
     updateUserPaymentMethod,
     type UsuarioMetodoPagoRow,
 } from "../repositories/metodos-pago.repository.js";
+import type { PaymentMethodPublic } from "../dtos/metodopago.dto.js";
 
 export type ServiceResult<T> =
     | { success: true; status: number; data: T }
     | { success: false; status: number; error: string };
-
-/** Public shape: never expose full card data; omit gateway token from responses. */
-export type PaymentMethodPublic = {
-    id: number;
-    metodo_pago_id: number;
-    alias: string | null;
-    ultimos_4: string | null;
-    marca: string | null;
-    activo: boolean;
-    created_at: string;
-};
 
 const MAX_ALIAS = 100;
 const MAX_TOKEN = 255;

@@ -3,30 +3,6 @@ import { supabase } from "../config/supabase.js";
 
 export const CART_STATE_ACTIVE = "activo";
 
-export type ActiveCartRow = {
-    carrito_id: number;
-};
-
-export type CartWithItemsRow = {
-    carrito_id: number;
-    estado: string;
-    created_at: string;
-    actualizado_en: string;
-    articulo_carrito: unknown;
-};
-
-export type CartItemRow = {
-    articulo_carrito_id: number;
-    cantidad: number;
-    producto_id: number;
-    carrito_id: number;
-};
-
-export type CartItemSummaryRow = {
-    articulo_carrito_id: number;
-    cantidad: number;
-};
-
 export type ProductStock = {
     precio: number;
     stock: number;

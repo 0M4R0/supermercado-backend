@@ -6,6 +6,7 @@ import {
     type CreateOrderFromCartResult,
 } from "../repositories/checkout.repository.js";
 import { findLocationById } from "../repositories/ubicaciones.repository.js";
+import type { CheckoutOrderResponseDto } from "../dtos/checkout.dto.js";
 import {
     findMetodoPagoById,
     findUserPaymentMethodById,
@@ -14,13 +15,6 @@ import {
 export type ServiceResult<T> =
     | { success: true; status: number; data: T }
     | { success: false; status: number; error: string };
-
-export type CheckoutOrderResponse = {
-    pedido_id: number;
-    codigo_seguimiento: string;
-    total: number;
-    estado_pedido: string;
-};
 
 const DEFAULT_ESTADO_PAGO = "Pendiente";
 
@@ -212,7 +206,7 @@ export async function checkout(
     supabaseUser: SupabaseClient,
     userId: string,
     body: Record<string, unknown>
-): Promise<ServiceResult<CheckoutOrderResponse>> {
+): Promise<ServiceResult<CheckoutOrderResponseDto>> {
     const ubicacionId = parsePositiveInt(body.ubicacion_id, "ubicacion_id", true);
     if ("error" in ubicacionId) {
         return { success: false, status: 400, error: ubicacionId.error };

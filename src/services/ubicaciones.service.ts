@@ -9,6 +9,7 @@ import {
     updateLocation,
     type UbicacionRow,
 } from "../repositories/ubicaciones.repository.js";
+import type { ValidatedCreateDto, ValidatedUpdateDto } from "../dtos/ubicaciones.dto.js";
 
 export type ServiceResult<T> =
     | { success: true; status: number; data: T }
@@ -20,26 +21,6 @@ const MAX_CIUDAD = 100;
 const MAX_PROVINCIA = 100;
 const MAX_PAIS = 100;
 const MAX_DIRECCION_EXTRA = 150;
-
-type ValidatedCreate = {
-    direccion: string;
-    codigo_postal: number | null;
-    ciudad: string;
-    provincia: string;
-    pais: string;
-    por_defecto: boolean;
-    direccion_extra: string | null;
-};
-
-type ValidatedUpdate = {
-    direccion?: string;
-    codigo_postal?: number | null;
-    ciudad?: string;
-    provincia?: string;
-    pais?: string;
-    por_defecto?: boolean;
-    direccion_extra?: string | null;
-};
 
 function parseOptionalString(
     value: unknown,
@@ -91,7 +72,7 @@ function parsePorDefecto(
     return { error: "por_defecto debe ser booleano" };
 }
 
-function validateCreateBody(body: Record<string, unknown>): ServiceResult<ValidatedCreate> {
+function validateCreateBody(body: Record<string, unknown>): ServiceResult<ValidatedCreateDto> {
     const direccion = parseOptionalString(body.direccion, "direccion", MAX_DIRECCION, true);
     if ("error" in direccion) {
         return { success: false, status: 400, error: direccion.error };
@@ -151,8 +132,8 @@ function validateCreateBody(body: Record<string, unknown>): ServiceResult<Valida
     };
 }
 
-function validateUpdateBody(body: Record<string, unknown>): ServiceResult<ValidatedUpdate> {
-    const data: ValidatedUpdate = {};
+function validateUpdateBody(body: Record<string, unknown>): ServiceResult<ValidatedUpdateDto> {
+    const data: ValidatedUpdateDto = {};
     const hasAny =
         body.direccion !== undefined ||
         body.ciudad !== undefined ||
