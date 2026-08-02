@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
+    findOrderByCodigo,
     getUserOrders,
     type UserOrderRow,
 } from "../repositories/pedidos.repository.js";
@@ -61,6 +62,51 @@ function toListItem(row: UserOrderRow): PedidoListItemDto {
     };
 }
 
+
+function firstOrNull<T>(value: T | T[] | null | undefined): T | null {
+    if (value == null) return null;
+    if (Array.isArray(value)) return value[0] ?? null;
+    return value;
+}
+
+function toDetailDto(row: any): PedidoDetailDto {
+    const entrega = firstOrNull(row.entrega);
+    const pago = firstOrNull(row.pago);
+
+    return {
+        pedido_id: row.id,
+        codigo_seguimiento: row.codigo_seguimiento,
+        estado: row.estado_pedido?.estado ?? "desconocido",
+        total: row.total,
+        fecha_pedido: row.fecha_pedido,
+        cancelable_until: row.cancelable_until,
+        productos: (row.productos ?? []).map((item: any) => ({
+            producto_id: item.producto_id,
+            nombre: item.producto?.nombre ?? "",
+            imagen_producto: item.producto?.imagen_producto ?? null,
+            cantidad: item.cantidad,
+            precio_unitario: item.precio_unitario,
+            subtotal: item.subtotal,
+        })),
+        entrega: entrega ? {
+            estado_entrega: entrega.estado_entrega?.estado ?? "",
+            direccion: entrega.ubicacion?.direccion ?? "",
+            ciudad: entrega.ubicacion?.ciudad ?? "",
+            provincia: entrega.ubicacion?.provincia ?? "",
+            fecha_programada: entrega.fecha_programada ?? null,
+        } : null,
+        pago: pago ? {
+            estado_pago: pago.estado_pago?.estado ?? "",
+            referencia_transaccion: pago.referencia_transaccion ?? null,
+            metodo_pago: pago.metodo_pago?.nombre ?? "",
+            tarjeta: pago.usuario_metodo_pago ? {
+                marca: pago.usuario_metodo_pago.marca,
+                ultimos_4: pago.usuario_metodo_pago.ultimos_4,
+            } : null,
+        } : null,
+    };
+}
+
 export async function listPedidos(
     supabaseUser: SupabaseClient,
     pageRaw: unknown,
@@ -95,4 +141,41 @@ export async function listPedidos(
     };
 }
 
-// TODO: Add function to get the details of an order(pedido)
+export async function getOrderDetails(
+    supabaseUser: SupabaseClient,
+    codigo: string,
+): Promise<ServiceResult<PedidoDetailDto>> {
+    const { data, error } = await findOrderByCodigo(supabaseUser, codigo);
+
+  if (error) {
+    if (error?.code === 'PGRST116') {
+      return {
+        success: false,
+        status: 404,
+        error: "Pedido no encontrado",
+      };
+    }
+
+    const mapped = mapRpcError(error.message);
+    if (mapped) return {
+      success: false,
+      status: mapped.status,
+      error: mapped.error,
+    };
+    throw error;
+  }
+
+  if (data == null) {
+    return {
+      success: false,
+      status: 404,
+      error: "Pedido no encontrado",
+    };
+  }
+
+  return {
+    success: true,
+    status: 200,
+    data: toDetailDto(data),
+  };
+}
