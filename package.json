@@ -20,7 +20,9 @@
     "express": "^5.2.1",
     "express-rate-limit": "^8.5.2",
     "helmet": "^8.2.0",
-    "jsonwebtoken": "^9.0.3"
+    "jsonwebtoken": "^9.0.3",
+    "@types/node": "^25.9.3",
+    "typescript": "^6.0.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
