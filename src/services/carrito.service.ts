@@ -49,25 +49,44 @@ function buildCartSnapshot(
   };
 }
 
-async function ensureActiveCart(
-  supabaseUser: SupabaseClient,
-  userId: string,
-): Promise<{ carrito_id: number }> {
-  const { data: existing, error: fetchError } = await findActiveCart(
+async function find_active_cart(supabaseUser: SupabaseClient, userId: string) {
+  const { data: cart, error: cartError } = await findActiveCart(
     supabaseUser,
     userId,
   );
-  if (fetchError) throw fetchError;
+  if (cartError) throw cartError;
+  return cart;
+}
 
-  if (existing) return { carrito_id: existing.carrito_id };
-
+async function create_active_cart(
+  supabaseUser: SupabaseClient,
+  userId: string,
+) {
   const { data: created, error: createError } = await createActiveCart(
     supabaseUser,
     userId,
   );
-
   if (createError) throw createError;
+  if (!created) throw new Error("No se pudo crear el carrito activo");
   return { carrito_id: created.carrito_id };
+}
+
+async function get_or_create_active_cart(
+  supabaseUser: SupabaseClient,
+  userId: string,
+): Promise<{ carrito_id: number }> {
+  const existing = await find_active_cart(supabaseUser, userId);
+  if (existing) return { carrito_id: existing.carrito_id };
+  return create_active_cart(supabaseUser, userId);
+}
+
+async function require_active_cart(
+  supabaseUser: SupabaseClient,
+  userId: string,
+) {
+  const cart = await find_active_cart(supabaseUser, userId);
+  if (!cart) return { error: "Carrito no encontrado", status: 404 as const };
+  return cart;
 }
 
 async function verifyCartItemOwnership(
@@ -75,12 +94,8 @@ async function verifyCartItemOwnership(
   userId: string,
   articuloId: number,
 ) {
-  const { data: carrito, error: cartError } = await findActiveCart(
-    supabaseUser,
-    userId,
-  );
-  if (cartError) throw cartError;
-  if (!carrito) return { error: "Carrito no encontrado", status: 404 as const };
+  const carrito = await require_active_cart(supabaseUser, userId);
+  if ("error" in carrito) return carrito;
 
   const { data: articulo, error: itemError } = await findCartItemById(
     supabaseUser,
@@ -158,7 +173,7 @@ export async function addToCarrito(
     return { success: false, status: 400, error: "Stock insuficiente" };
   }
 
-  const cartResult = await ensureActiveCart(supabaseUser, userId);
+  const cartResult = await get_or_create_active_cart(supabaseUser, userId);
 
   const { data: existing, error: existingError } = await findCartItemByProduct(
     supabaseUser,
@@ -236,7 +251,7 @@ export async function updateCarritoItem(
     userId,
     articuloId,
   );
-  if ("error" in ownership && ownership.status) {
+  if ("error" in ownership) {
     return {
       success: false,
       status: ownership.status,
@@ -293,7 +308,7 @@ export async function removeFromCarrito(
     userId,
     articuloId,
   );
-  if ("error" in ownership && ownership.status) {
+  if ("error" in ownership) {
     return {
       success: false,
       status: ownership.status,
@@ -325,11 +340,7 @@ export async function clearCarrito(
   supabaseUser: SupabaseClient,
   userId: string,
 ): Promise<ServiceResult<CartSnapshot>> {
-  const { data: carrito, error: cartError } = await findActiveCart(
-    supabaseUser,
-    userId,
-  );
-  if (cartError) throw cartError;
+  const carrito = await find_active_cart(supabaseUser, userId);
 
   if (!carrito) {
     return {
