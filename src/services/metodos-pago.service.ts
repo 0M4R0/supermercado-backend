@@ -135,8 +135,22 @@ function parseMethodId(raw: string): ServiceResult<number> {
   return { success: true, status: 200, data: id };
 }
 
+function badRequest(error: string): ServiceResult<never> {
+  return { success: false, status: 400, error };
+}
+
 function isCashMethodName(nombre: string): boolean {
   return CASH_METHOD_NAMES.has(nombre.trim().toLowerCase());
+}
+
+function parseUpdateField(field: keyof ValidatedUpdate, value: unknown) {
+  switch (field) {
+    case "metodo_pago_id": return parseMetodoPagoId(value, true);
+    case "ultimos_4": return parseUltimos4(value);
+    case "alias": return parseOptionalString(value, "alias", MAX_ALIAS);
+    case "token": return parseOptionalString(value, "token", MAX_TOKEN);
+    case "marca": return parseOptionalString(value, "marca", MAX_MARCA);
+  }
 }
 
 async function assertCardMetodoPago(
@@ -167,34 +181,18 @@ function validateCreateBody(
   body: Record<string, unknown>,
 ): ServiceResult<ValidatedCreate> {
   const sensitiveError = findSensitiveFieldError(body);
-  if (sensitiveError) {
-    return { success: false, status: 400, error: sensitiveError };
-  }
+  if (sensitiveError) return badRequest(sensitiveError);
 
   const metodoPagoId = parseMetodoPagoId(body.metodo_pago_id, true);
-  if ("error" in metodoPagoId) {
-    return { success: false, status: 400, error: metodoPagoId.error };
-  }
-
+  if ("error" in metodoPagoId) return badRequest(metodoPagoId.error);
   const alias = parseOptionalString(body.alias, "alias", MAX_ALIAS);
-  if ("error" in alias) {
-    return { success: false, status: 400, error: alias.error };
-  }
-
+  if ("error" in alias) return badRequest(alias.error);
   const ultimos4 = parseUltimos4(body.ultimos_4);
-  if ("error" in ultimos4) {
-    return { success: false, status: 400, error: ultimos4.error };
-  }
-
+  if ("error" in ultimos4) return badRequest(ultimos4.error);
   const token = parseOptionalString(body.token, "token", MAX_TOKEN);
-  if ("error" in token) {
-    return { success: false, status: 400, error: token.error };
-  }
-
+  if ("error" in token) return badRequest(token.error);
   const marca = parseOptionalString(body.marca, "marca", MAX_MARCA);
-  if ("error" in marca) {
-    return { success: false, status: 400, error: marca.error };
-  }
+  if ("error" in marca) return badRequest(marca.error);
 
   if (!ultimos4.value && !token.value) {
     return {
@@ -241,46 +239,11 @@ function validateUpdateBody(
     };
   }
 
-  if (body.metodo_pago_id !== undefined) {
-    const metodoPagoId = parseMetodoPagoId(body.metodo_pago_id, true);
-    if ("error" in metodoPagoId) {
-      return { success: false, status: 400, error: metodoPagoId.error };
-    }
-    if (metodoPagoId.value !== undefined) {
-      data.metodo_pago_id = metodoPagoId.value;
-    }
-  }
-
-  if (body.alias !== undefined) {
-    const alias = parseOptionalString(body.alias, "alias", MAX_ALIAS);
-    if ("error" in alias) {
-      return { success: false, status: 400, error: alias.error };
-    }
-    data.alias = alias.value;
-  }
-
-  if (body.ultimos_4 !== undefined) {
-    const ultimos4 = parseUltimos4(body.ultimos_4);
-    if ("error" in ultimos4) {
-      return { success: false, status: 400, error: ultimos4.error };
-    }
-    data.ultimos_4 = ultimos4.value;
-  }
-
-  if (body.token !== undefined) {
-    const token = parseOptionalString(body.token, "token", MAX_TOKEN);
-    if ("error" in token) {
-      return { success: false, status: 400, error: token.error };
-    }
-    data.token = token.value;
-  }
-
-  if (body.marca !== undefined) {
-    const marca = parseOptionalString(body.marca, "marca", MAX_MARCA);
-    if ("error" in marca) {
-      return { success: false, status: 400, error: marca.error };
-    }
-    data.marca = marca.value;
+  for (const field of ["metodo_pago_id", "alias", "ultimos_4", "token", "marca"] as const) {
+    if (body[field] === undefined) continue;
+    const parsed = parseUpdateField(field, body[field]);
+    if ("error" in parsed) return badRequest(parsed.error);
+    (data as Record<string, unknown>)[field] = parsed.value;
   }
 
   return { success: true, status: 200, data };
