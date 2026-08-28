@@ -1,54 +1,44 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-
-// Routes
-import productosRoutes from "./routes/productos.routes.js";
-import carritoRoutes from "./routes/carrito.routes.js";
-import ubicacionesRoutes from "./routes/ubicaciones.routes.js";
-import metodosPagoRoutes from "./routes/metodos-pago.routes.js";
-import checkoutRoutes from "./routes/checkout.routes.js";
-import pedidosRoutes from "./routes/pedidos.routes.js";
-import {
-    errorHandler,
-    notFoundHandler,
-} from "./middlewares/error.middleware.js";
+import { config } from "./config/config";
+import { errorHandler, notFoundHandler } from "./middlewares/error.middleware";
+import productosRoutes from "./routes/productos.routes";
+import carritoRoutes from "./routes/carrito.routes";
+import ubicacionesRoutes from "./routes/ubicaciones.routes";
+import metodosPagoRoutes from "./routes/metodos-pago.routes";
+import checkoutRoutes from "./routes/checkout.routes";
+import pedidosRoutes from "./routes/pedidos.routes";
 
 const app = express();
 
 app.use(helmet());
 
-// If production, then use frontend url. If not production, then use these origins
-const ALLOWED_ORIGINS = process.env.NODE_ENV === 'production'
-    ? [process.env.FRONTEND_URL].filter(Boolean)
-    : ["http://localhost:5173"];
-
 const corsOptions = {
-    origin: (origin: any, callback: any) => {
+  origin: (
+    origin: string | undefined,
+    callback: (error: Error | null, allowed?: boolean) => void,
+  ) => {
+    if (!origin) {
+      return callback(null, true);
+    }
 
-        // Block request with no origins in production
-        if (!origin) {
-            if (process.env.NODE_ENV === 'production') {
-                return callback(new Error('Origin not allowed by CORS'));
-            }
+    if (config.clientUrls.includes(origin)) {
+      return callback(null, true);
+    }
 
-            // Allow request with no origin in development
-            return callback(null, true);
-        }
+    return callback(new Error("Origin not allowed by CORS"));
+  },
+};
 
-        // Allow request from trusted frontend origins
-        if (ALLOWED_ORIGINS.includes(origin)) {
-            return callback(null, true);
-        }
+app.use(express.json());
 
-        // Rejet everything else
-        return callback(new Error('Origin not allowed by CORS'));
-    }};
-
-app.use(cors({
+app.use(
+  cors({
     origin: corsOptions.origin,
-    credentials: true
-}));
+    credentials: true,
+  }),
+);
 
 app.use(express.json());
 

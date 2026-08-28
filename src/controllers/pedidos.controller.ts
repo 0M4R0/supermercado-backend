@@ -3,14 +3,8 @@ import {
     listPedidos,
     getOrderDetails,
     type ServiceResult,
-} from "../services/pedidos.service.js";
-
-function sendServiceResult<T>(res: Response, result: ServiceResult<T>) {
-    if (!result.success) {
-        return res.status(result.status).json({ error: result.error });
-    }
-    return res.status(result.status).json(result.data);
-}
+} from "../services/pedidos.service";
+import { sendServiceResult } from "../helper/controller.helper";
 
 export const getPedidos = async (req: Request, res: Response) => {
     const { page, limit } = req.query;

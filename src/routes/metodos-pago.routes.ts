@@ -1,15 +1,12 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware";
+import { apiAuthenticatedLimiter, apiLimiter } from "../middlewares/rate-limit";
 import {
-    apiAuthenticatedLimiter,
-    apiLimiter,
-} from "../middlewares/rate-limit.js";
-import {
-    getPaymentMethods,
-    postPaymentMethod,
-    putPaymentMethod,
-    removePaymentMethod,
-} from "../controllers/metodos-pago.controller.js";
+  getPaymentMethods,
+  postPaymentMethod,
+  putPaymentMethod,
+  removePaymentMethod,
+} from "../controllers/metodos-pago.controller";
 
 const router = Router();
 

@@ -1,10 +1,7 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
-import {
-    apiAuthenticatedLimiter,
-    apiLimiter,
-} from "../middlewares/rate-limit.js";
-import { postCheckout } from "../controllers/checkout.controller.js";
+import { authMiddleware } from "../middlewares/auth.middleware";
+import { apiAuthenticatedLimiter, apiLimiter } from "../middlewares/rate-limit";
+import { postCheckout } from "../controllers/checkout.controller";
 
 const router = Router();
 

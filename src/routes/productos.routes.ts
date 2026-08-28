@@ -1,10 +1,10 @@
 import { Router } from "express";
 import {
-    getCategorias,
-    getProductoById,
-    getProductos,
-} from "../controllers/productos.controller.js";
-import { catalogLimiter, slowLimiter } from "../middlewares/rate-limit.js";
+  getCategorias,
+  getProductoById,
+  getProductos,
+} from "../controllers/productos.controller";
+import { catalogLimiter, slowLimiter } from "../middlewares/rate-limit";
 
 const router = Router();
 

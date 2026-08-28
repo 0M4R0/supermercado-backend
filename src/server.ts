@@ -1,5 +1,5 @@
-import app from './app.js';
-import dotenv from 'dotenv';
+import app from "./app.js";
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -10,13 +10,13 @@ const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 async function startServer() {
   try {
     const response = await fetch(`${SUPABASE_URL}/auth/v1/health`, {
-        headers: { apikey: SUPABASE_ANON_KEY! }
-      });
+      headers: { apikey: SUPABASE_ANON_KEY! },
+    });
 
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const data = await response.json();
-    console.log('Supabase OK:', data.version);
+    console.log("Supabase OK:", data.version);
 
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (error) {

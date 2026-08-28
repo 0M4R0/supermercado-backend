@@ -1,16 +1,13 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/auth.middleware.js";
+import { authMiddleware } from "../middlewares/auth.middleware";
+import { apiAuthenticatedLimiter, apiLimiter } from "../middlewares/rate-limit";
 import {
-    apiAuthenticatedLimiter,
-    apiLimiter,
-} from "../middlewares/rate-limit.js";
-import {
-    getUbicacion,
-    getUbicaciones,
-    postUbicacion,
-    putUbicacion,
-    removeUbicacion,
-} from "../controllers/ubicaciones.controller.js";
+  getUbicacion,
+  getUbicaciones,
+  postUbicacion,
+  putUbicacion,
+  removeUbicacion,
+} from "../controllers/ubicaciones.controller";
 
 const router = Router();
 

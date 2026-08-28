@@ -8,8 +8,8 @@ import {
     softDeleteLocation,
     updateLocation,
     type UbicacionRow,
-} from "../repositories/ubicaciones.repository.js";
-import type { ValidatedCreateDto, ValidatedUpdateDto } from "../dtos/ubicaciones.dto.js";
+} from "../repositories/ubicaciones.repository";
+import type { ValidatedCreateDto, ValidatedUpdateDto } from "../dtos/ubicaciones.dto";
 
 export type ServiceResult<T> =
     | { success: true; status: number; data: T }
