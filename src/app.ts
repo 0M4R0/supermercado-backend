@@ -12,6 +12,8 @@ import pedidosRoutes from "./routes/pedidos.routes";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(helmet());
 
 const corsOptions = {
@@ -39,8 +41,6 @@ app.use(
     credentials: true,
   }),
 );
-
-app.use(express.json());
 
 // Routes
 app.use("/api/productos", productosRoutes);
