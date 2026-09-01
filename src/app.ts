@@ -25,22 +25,20 @@ const corsOptions = {
       return callback(null, true);
     }
 
-    if (config.clientUrls.includes(origin)) {
+    const normalizedOrigin = origin.replace(/\/+$/, "");
+
+    if (config.clientUrls.includes(normalizedOrigin)) {
       return callback(null, true);
     }
 
     return callback(new Error("Origin not allowed by CORS"));
   },
+  credentials: true,
 };
 
 app.use(express.json());
 
-app.use(
-  cors({
-    origin: corsOptions.origin,
-    credentials: true,
-  }),
-);
+app.use(cors(corsOptions));
 
 // Routes
 app.use("/api/productos", productosRoutes);

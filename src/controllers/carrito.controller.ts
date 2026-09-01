@@ -5,9 +5,17 @@ import {
   getCarrito as getCarritoService,
   removeFromCarrito as removeFromCarritoService,
   updateCarritoItem as updateCarritoItemService,
-  type ServiceResult,
 } from "../services/carrito.service";
-import { sendServiceResult } from "../helper/controller.helper";
+
+import {
+  addCarritoSchema,
+  articuloIdSchema,
+  updateCarritoItemSchema,
+} from "../schemas";
+import {
+  sendServiceResult,
+  sendValidationError,
+} from "../helper/controller.helper";
 
 export const getCarrito = async (req: Request, res: Response) => {
   const result = await getCarritoService(req.supabaseUser!, req.user!.id);
@@ -15,34 +23,54 @@ export const getCarrito = async (req: Request, res: Response) => {
 };
 
 export const addToCarrito = async (req: Request, res: Response) => {
-  const { producto_id, cantidad = 1 } = req.body;
+  const parsed = addCarritoSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return sendValidationError(res, parsed.error);
+  }
+
   const result = await addToCarritoService(
     req.supabaseUser!,
     req.user!.id,
-    producto_id,
-    cantidad,
+    parsed.data.producto_id,
+    parsed.data.cantidad,
   );
 
   return sendServiceResult(res, result);
 };
 
 export const updateCarritoItem = async (req: Request, res: Response) => {
-  const { cantidad } = req.body;
+  const params = articuloIdSchema.safeParse(req.params);
+  if (!params.success) {
+    return sendValidationError(res, params.error);
+  }
+
+  const parsed = updateCarritoItemSchema.safeParse(req.body);
+
+  if (!parsed.success) {
+    return sendValidationError(res, parsed.error);
+  }
+
   const result = await updateCarritoItemService(
     req.supabaseUser!,
     req.user!.id,
-    req.params.articuloId as string,
-    cantidad,
+    String(params.data.articuloId),
+    parsed.data.cantidad,
   );
 
   return sendServiceResult(res, result);
 };
 
 export const removeFromCarrito = async (req: Request, res: Response) => {
+  const params = articuloIdSchema.safeParse(req.params);
+  if (!params.success) {
+    return sendValidationError(res, params.error);
+  }
+
   const result = await removeFromCarritoService(
     req.supabaseUser!,
     req.user!.id,
-    req.params.articuloId as string,
+    String(params.data.articuloId),
   );
 
   return sendServiceResult(res, result);

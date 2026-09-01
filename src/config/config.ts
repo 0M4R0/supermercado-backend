@@ -13,7 +13,7 @@ export const config = {
   nodeEnv: required("NODE_ENV"),
   clientUrls: required("CLIENT_URLS")
     .split(",")
-    .map((url) => url.trim())
+    .map((url) => url.trim().replace(/\/+$/, ""))
     .filter(Boolean),
   supabase: {
     url: required("SUPABASE_URL"),
