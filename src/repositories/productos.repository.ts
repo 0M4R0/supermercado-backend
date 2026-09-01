@@ -7,6 +7,8 @@ const PRODUCT_LIST_SELECT = `
     descripcion,
     precio,
     imagen_producto,
+    rating_promedio,
+    rating_count,
     created_at,
     producto_inventario (stock, min_stock, max_stock),
     producto_categoria (categoria_id, categorias (id, nombre))
@@ -18,6 +20,8 @@ const PRODUCT_DETAIL_SELECT = `
     descripcion,
     precio,
     imagen_producto,
+    rating_promedio,
+    rating_count,
     created_at,
     producto_inventario (stock, min_stock, max_stock),
     producto_categoria (categorias (id, nombre)),

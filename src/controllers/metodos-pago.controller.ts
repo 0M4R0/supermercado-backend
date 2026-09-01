@@ -22,7 +22,7 @@ export const getPaymentMethods = async (req: Request, res: Response) => {
 };
 
 export const postPaymentMethod = async (req: Request, res: Response) => {
-  const parsed = createPaymentMethodSchema.safeParse(req.body);
+  const parsed = createPaymentMethodSchema.safeParse(req.query);
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);
   }
@@ -36,7 +36,7 @@ export const postPaymentMethod = async (req: Request, res: Response) => {
 };
 
 export const putPaymentMethod = async (req: Request, res: Response) => {
-  const parsed = updatePaymentMethodSchema.safeParse(req.body);
+  const parsed = updatePaymentMethodSchema.safeParse(req.query);
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);
   }

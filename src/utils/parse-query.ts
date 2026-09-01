@@ -24,7 +24,7 @@ export function parseCategoryIds(
 
     const id = parseInt(trimmed, 10);
     if (isNaN(id)) {
-      return { error: `categoria_id inválido: "${trimmed}"` };
+      return { error: `Invalid categoria_id: "${trimmed}"` };
     }
     ids.push(id);
   }

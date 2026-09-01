@@ -5,9 +5,14 @@ import {
   findProductos,
   type ProductoListItem,
 } from "../repositories/productos.repository";
+import {
+  findComentariosByProducto,
+  type ComentarioRow,
+} from "../repositories/comentario.repository";
 import type {
   ProductListItemDto,
   ProductDetailDto,
+  ProductCommentDto,
 } from "../dtos/productos.dto";
 import {
   buildPaginatedResponse,
@@ -28,6 +33,9 @@ function toProductListItem(row: ProductoListItem): ProductListItemDto {
     precio: Number(row.precio ?? 0),
     imagen_producto:
       row.imagen_producto != null ? String(row.imagen_producto) : null,
+    rating_promedio:
+      row.rating_promedio != null ? Number(row.rating_promedio) : 0,
+    rating_count: row.rating_count != null ? Number(row.rating_count) : 0,
     created_at: String(row.created_at ?? ""),
     producto_inventario: inv,
     producto_categorias: cats.map((c) => ({
@@ -37,9 +45,28 @@ function toProductListItem(row: ProductoListItem): ProductListItemDto {
   };
 }
 
-function toProductDetail(row: any): ProductDetailDto {
+function toComment(row: ComentarioRow): ProductCommentDto {
+  return {
+    id: Number(row.id),
+    producto_id: Number(row.producto_id),
+    description: String(row.description ?? ""),
+    calificacion: Number(row.calificacion),
+    activo: Boolean(row.activo ?? true),
+    created_at: String(row.created_at ?? ""),
+    updated_at: String(row.updated_at ?? ""),
+  };
+}
+
+async function toProductDetail(row: any): Promise<ProductDetailDto> {
+  const { data: comentarios } = await findComentariosByProducto({
+    productoId: Number(row.producto_id),
+    from: 0,
+    to: 10,
+  });
+
   return {
     ...toProductListItem(row),
+    comentarios: comentarios.map(toComment),
     proveedores: row.proveedores
       ? { nombre: String(row.proveedores.nombre ?? "") }
       : null,
@@ -86,7 +113,7 @@ export async function fetchProductoById(
   productoId: number,
 ): Promise<ProductDetailDto | null> {
   const row = await findProductoById(productoId);
-  return row ? toProductDetail(row) : null;
+  return row ? await toProductDetail(row) : null;
 }
 
 export async function fetchCategorias() {

@@ -18,7 +18,7 @@ export type ServiceResult<T> =
 function mapRpcError(
   message: string,
 ): { status: number; error: string } | undefined {
-  const msg = message || "Error al obtener los pedidos";
+  const msg = message || "Error obtaining orders";
 
   if (/no autenticado/i.test(msg)) {
     return { status: 401, error: msg };
@@ -156,7 +156,7 @@ export async function getOrderDetails(
       return {
         success: false,
         status: 404,
-        error: "Pedido no encontrado",
+        error: "Order not found",
       };
     }
 
@@ -174,7 +174,7 @@ export async function getOrderDetails(
     return {
       success: false,
       status: 404,
-      error: "Pedido no encontrado",
+      error: "Order not found",
     };
   }
 

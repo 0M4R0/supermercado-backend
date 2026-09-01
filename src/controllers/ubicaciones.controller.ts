@@ -36,7 +36,7 @@ export const getUbicacion = async (req: Request, res: Response) => {
 };
 
 export const postUbicacion = async (req: Request, res: Response) => {
-  const parsed = createUbicacionSchema.safeParse(req.body);
+  const parsed = createUbicacionSchema.safeParse(req.query);
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);
   }
@@ -56,7 +56,7 @@ export const putUbicacion = async (req: Request, res: Response) => {
     return sendValidationError(res, params.error);
   }
 
-  const parsed = updateUbicacionSchema.safeParse(req.body);
+  const parsed = updateUbicacionSchema.safeParse(req.query);
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);
   }

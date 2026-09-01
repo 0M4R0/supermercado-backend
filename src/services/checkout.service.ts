@@ -53,7 +53,7 @@ function parseOptionalString(
   const trimmed = value.trim();
   if (!trimmed) return { value: null };
   if (trimmed.length > maxLen) {
-    return { error: `${field} no puede exceder ${maxLen} caracteres` };
+    return { error: `${field} cannot exceed ${maxLen} characters` };
   }
   return { value: trimmed };
 }
@@ -111,7 +111,7 @@ function parsePaymentSelection(
     success: false,
     status: 400,
     error:
-      "Debe indicar un método de pago: usuario_metodo_pago_id (tarjeta) o metodo_pago_id (ej. efectivo)",
+      "Must provide either usuario_metodo_pago_id (card) or metodo_pago_id (cash)",
   };
 }
 
@@ -257,7 +257,7 @@ export async function checkout(
       return {
         success: false,
         status: 400,
-        error: "Método de pago guardado no pertenece al usuario",
+        error: "Payment method does not belong to the user",
       };
     }
   } else if (payment.data.metodoPagoId !== null) {
@@ -270,7 +270,7 @@ export async function checkout(
       return {
         success: false,
         status: 400,
-        error: "método de pago no válido o inactivo",
+        error: "Invalid or inactive payment method",
       };
     }
   }
@@ -295,7 +295,7 @@ export async function checkout(
 
   const order = normalizeRpcResult(data);
   if (!order) {
-    throw new Error("La orden se procesó sin un resultado válido");
+    throw new Error("The order was processed without a valid result");
   }
 
   return {

@@ -70,7 +70,7 @@ function toPublic(row: UsuarioMetodoPagoRow): PaymentMethodPublic {
 function findSensitiveFieldError(body: Record<string, unknown>): string | null {
   for (const field of FORBIDDEN_CARD_FIELDS) {
     if (body[field] !== undefined) {
-      return `No se permite enviar datos sensibles de tarjeta (${field})`;
+      return `Sensible card data is not allowed (${field})`;
     }
   }
   return null;
@@ -90,7 +90,7 @@ function parseOptionalString(
   const trimmed = value.trim();
   if (!trimmed) return { value: null };
   if (trimmed.length > maxLen) {
-    return { error: `${field} no puede exceder ${maxLen} caracteres` };
+    return { error: `${field} cannot exceed ${maxLen} characters` };
   }
   return { value: trimmed };
 }
@@ -100,12 +100,12 @@ function parseMetodoPagoId(
   required: boolean,
 ): { value: number | undefined } | { error: string } {
   if (value === undefined || value === null || value === "") {
-    if (required) return { error: "metodo_pago_id es requerido" };
+    if (required) return { error: "metodo_pago_id is required" };
     return { value: undefined };
   }
   const n = typeof value === "number" ? value : parseInt(String(value), 10);
   if (!Number.isInteger(n) || n < 1) {
-    return { error: "metodo_pago_id inválido" };
+    return { error: "metodo_pago_id is invalid" };
   }
   return { value: n };
 }
@@ -118,7 +118,7 @@ function parseUltimos4(
   }
   const digits = String(value).trim();
   if (!/^\d{4}$/.test(digits)) {
-    return { error: "ultimos_4 debe ser exactamente 4 dígitos" };
+    return { error: "ultimos_4 must be exactly 4 digits" };
   }
   return { value: digits };
 }
@@ -129,7 +129,7 @@ function parseMethodId(raw: string): ServiceResult<number> {
     return {
       success: false,
       status: 400,
-      error: "ID de método de pago inválido",
+      error: "Invalid payment method ID",
     };
   }
   return { success: true, status: 200, data: id };
@@ -145,11 +145,16 @@ function isCashMethodName(nombre: string): boolean {
 
 function parseUpdateField(field: keyof ValidatedUpdate, value: unknown) {
   switch (field) {
-    case "metodo_pago_id": return parseMetodoPagoId(value, true);
-    case "ultimos_4": return parseUltimos4(value);
-    case "alias": return parseOptionalString(value, "alias", MAX_ALIAS);
-    case "token": return parseOptionalString(value, "token", MAX_TOKEN);
-    case "marca": return parseOptionalString(value, "marca", MAX_MARCA);
+    case "metodo_pago_id":
+      return parseMetodoPagoId(value, true);
+    case "ultimos_4":
+      return parseUltimos4(value);
+    case "alias":
+      return parseOptionalString(value, "alias", MAX_ALIAS);
+    case "token":
+      return parseOptionalString(value, "token", MAX_TOKEN);
+    case "marca":
+      return parseOptionalString(value, "marca", MAX_MARCA);
   }
 }
 
@@ -163,7 +168,7 @@ async function assertCardMetodoPago(
     return {
       success: false,
       status: 400,
-      error: "método de pago no válido o inactivo",
+      error: "payment method not found or inactive",
     };
   }
   if (isCashMethodName(data.nombre as string)) {
@@ -171,7 +176,7 @@ async function assertCardMetodoPago(
       success: false,
       status: 400,
       error:
-        "El efectivo no se guarda en métodos del usuario; solo se usa en el checkout",
+        "Cash is not saved as a user method; it is only used in the checkout",
     };
   }
   return { success: true, status: 200, data: null };
@@ -198,7 +203,7 @@ function validateCreateBody(
     return {
       success: false,
       status: 400,
-      error: "Debe indicar ultimos_4 o token de la tarjeta",
+      error: "Must indicate ultimos_4 or token",
     };
   }
 
@@ -235,11 +240,17 @@ function validateUpdateBody(
     return {
       success: false,
       status: 400,
-      error: "Debe enviar al menos un campo para actualizar",
+      error: "Must provide at least one field to update",
     };
   }
 
-  for (const field of ["metodo_pago_id", "alias", "ultimos_4", "token", "marca"] as const) {
+  for (const field of [
+    "metodo_pago_id",
+    "alias",
+    "ultimos_4",
+    "token",
+    "marca",
+  ] as const) {
     if (body[field] === undefined) continue;
     const parsed = parseUpdateField(field, body[field]);
     if ("error" in parsed) return badRequest(parsed.error);
@@ -313,7 +324,7 @@ export async function updatePaymentMethod(
     return {
       success: false,
       status: 404,
-      error: "Método de pago no encontrado",
+      error: "Payment method not found",
     };
   }
 
@@ -337,7 +348,7 @@ export async function updatePaymentMethod(
     return {
       success: false,
       status: 404,
-      error: "Método de pago no encontrado",
+      error: "Payment method not found",
     };
   }
 
@@ -366,7 +377,7 @@ export async function deletePaymentMethod(
     return {
       success: false,
       status: 404,
-      error: "Método de pago no encontrado",
+      error: "Payment method not found",
     };
   }
 
@@ -380,13 +391,13 @@ export async function deletePaymentMethod(
     return {
       success: false,
       status: 404,
-      error: "Método de pago no encontrado",
+      error: "Payment method not found",
     };
   }
 
   return {
     success: true,
     status: 200,
-    data: { message: "Método de pago eliminado", id: idResult.data },
+    data: { message: "Payment method deleted", id: idResult.data },
   };
 }

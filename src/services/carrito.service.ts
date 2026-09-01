@@ -67,7 +67,7 @@ async function create_active_cart(
     userId,
   );
   if (createError) throw createError;
-  if (!created) throw new Error("No se pudo crear el carrito activo");
+  if (!created) throw new Error("Cart could not be created");
   return { carrito_id: created.carrito_id };
 }
 
@@ -85,7 +85,7 @@ async function require_active_cart(
   userId: string,
 ) {
   const cart = await find_active_cart(supabaseUser, userId);
-  if (!cart) return { error: "Carrito no encontrado", status: 404 as const };
+  if (!cart) return { error: "Cart not found", status: 404 as const };
   return cart;
 }
 
@@ -106,7 +106,7 @@ async function verifyCartItemOwnership(
   if (itemError) throw itemError;
   if (!articulo) {
     return {
-      error: "Artículo no encontrado en el carrito",
+      error: "Articulo not found in the cart",
       status: 404 as const,
     };
   }
@@ -159,7 +159,7 @@ export async function addToCarrito(
   cantidad: unknown = 1,
 ): Promise<ServiceResult<CartSnapshot>> {
   if (!producto_id) {
-    return { success: false, status: 400, error: "producto_id es requerido" };
+    return { success: false, status: 400, error: "producto_id is required" };
   }
 
   const qty = Math.max(1, parseInt(String(cantidad), 10) || 1);
@@ -167,10 +167,10 @@ export async function addToCarrito(
 
   const producto = await findProductStock(productoId);
   if (!producto) {
-    return { success: false, status: 404, error: "Producto no encontrado" };
+    return { success: false, status: 404, error: "Product not found" };
   }
   if (producto.stock < qty) {
-    return { success: false, status: 400, error: "Stock insuficiente" };
+    return { success: false, status: 400, error: "Insufficient stock" };
   }
 
   const cartResult = await get_or_create_active_cart(supabaseUser, userId);
@@ -186,7 +186,7 @@ export async function addToCarrito(
   if (existing) {
     const newQty = existing.cantidad + qty;
     if (producto.stock < newQty) {
-      return { success: false, status: 400, error: "Stock insuficiente" };
+      return { success: false, status: 400, error: "Insufficient stock" };
     }
 
     const { error: updateError } = await updateCartItem(
@@ -234,7 +234,7 @@ export async function updateCarritoItem(
   const articuloId = parseInt(articuloIdRaw, 10);
 
   if (isNaN(articuloId)) {
-    return { success: false, status: 400, error: "ID de artículo inválido" };
+    return { success: false, status: 400, error: "Articulo ID is invalid" };
   }
 
   const qty = parseInt(String(cantidad), 10);
@@ -242,7 +242,7 @@ export async function updateCarritoItem(
     return {
       success: false,
       status: 400,
-      error: "cantidad debe ser al menos 1",
+      error: "Quantity must be at least 1",
     };
   }
 
@@ -261,10 +261,10 @@ export async function updateCarritoItem(
 
   const producto = await findProductStock(ownership.articulo!.producto_id);
   if (!producto) {
-    return { success: false, status: 404, error: "Producto no encontrado" };
+    return { success: false, status: 404, error: "Product not found" };
   }
   if (producto.stock < qty) {
-    return { success: false, status: 400, error: "Stock insuficiente" };
+    return { success: false, status: 400, error: "Insufficient stock" };
   }
 
   const { error: updateError } = await updateCartItem(
@@ -300,7 +300,7 @@ export async function removeFromCarrito(
   const articuloId = parseInt(articuloIdRaw, 10);
 
   if (isNaN(articuloId)) {
-    return { success: false, status: 400, error: "ID de artículo inválido" };
+    return { success: false, status: 400, error: "Articulo ID is invalid" };
   }
 
   const ownership = await verifyCartItemOwnership(

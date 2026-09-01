@@ -6,9 +6,14 @@ import {
 } from "../services/productos.service";
 import { parsePagination } from "../utils/pagination";
 import { parseCategoryIds, parseSortParams } from "../utils/parse-query";
+import { productosQuerySchema } from "../schemas";
 
 export const getProductos = async (req: Request, res: Response) => {
-  const { page, limit, order, dir, categoria_id } = req.query;
+  const parsed = productosQuerySchema.safeParse(req.query);
+  if (!parsed.success) {
+    return res.status(400).json({ error: parsed.error });
+  }
+  const { page, limit, order, dir, categoria_id } = parsed.data;
 
   const categoryResult = parseCategoryIds(categoria_id);
   if (categoryResult && "error" in categoryResult) {
@@ -26,13 +31,13 @@ export const getProductoById = async (req: Request, res: Response) => {
   const productoId = parseInt(req.params.id as string, 10);
 
   if (isNaN(productoId)) {
-    return res.status(400).json({ error: "ID de producto inválido" });
+    return res.status(400).json({ error: "ID of an invalid product" });
   }
 
   const producto = await fetchProductoById(productoId);
 
   if (!producto) {
-    return res.status(404).json({ error: "Producto no encontrado" });
+    return res.status(404).json({ error: "Product not found" });
   }
 
   res.json(producto);

@@ -5,6 +5,8 @@ export type ProductListItemDto = {
   precio: number;
   imagen_producto: string | null;
   created_at: string;
+  rating_promedio: number | null;
+  rating_count: number | null;
   producto_inventario: {
     stock: number;
     min_stock: number;
@@ -16,6 +18,17 @@ export type ProductListItemDto = {
   }[];
 };
 
+export type ProductCommentDto = {
+  id: number;
+  producto_id: number;
+  description: string;
+  calificacion: number;
+  activo: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ProductDetailDto = ProductListItemDto & {
   proveedores: { nombre: string } | null;
+  comentarios: ProductCommentDto[];
 };
