@@ -23,7 +23,7 @@ export const getCarrito = async (req: Request, res: Response) => {
 };
 
 export const addToCarrito = async (req: Request, res: Response) => {
-  const parsed = addCarritoSchema.safeParse(req.query);
+  const parsed = addCarritoSchema.safeParse(req.body);
 
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);
@@ -45,7 +45,7 @@ export const updateCarritoItem = async (req: Request, res: Response) => {
     return sendValidationError(res, params.error);
   }
 
-  const parsed = updateCarritoItemSchema.safeParse(req.query);
+  const parsed = updateCarritoItemSchema.safeParse(req.body);
 
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);

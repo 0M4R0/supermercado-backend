@@ -22,7 +22,7 @@ export const getPaymentMethods = async (req: Request, res: Response) => {
 };
 
 export const postPaymentMethod = async (req: Request, res: Response) => {
-  const parsed = createPaymentMethodSchema.safeParse(req.query);
+  const parsed = createPaymentMethodSchema.safeParse(req.body);
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);
   }
@@ -36,7 +36,7 @@ export const postPaymentMethod = async (req: Request, res: Response) => {
 };
 
 export const putPaymentMethod = async (req: Request, res: Response) => {
-  const parsed = updatePaymentMethodSchema.safeParse(req.query);
+  const parsed = updatePaymentMethodSchema.safeParse(req.body);
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);
   }
@@ -44,7 +44,7 @@ export const putPaymentMethod = async (req: Request, res: Response) => {
   const result = await updatePaymentMethod(
     req.supabaseUser!,
     req.user!.id,
-    req.params.id as string,
+    req.params.paymentMethodId as string,
     parsed.data,
   );
   return sendServiceResult(res, result);

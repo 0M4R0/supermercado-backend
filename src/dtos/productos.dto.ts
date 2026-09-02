@@ -20,7 +20,12 @@ export type ProductListItemDto = {
 
 export type ProductCommentDto = {
   id: number;
+  user_id: string;
   producto_id: number;
+  user: {
+    nombre: string | null;
+    username: string;
+  };
   description: string;
   calificacion: number;
   activo: boolean;

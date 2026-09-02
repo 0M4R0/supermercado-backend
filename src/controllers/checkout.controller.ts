@@ -7,7 +7,7 @@ import {
 import { checkoutSchema } from "../schemas";
 
 export const postCheckout = async (req: Request, res: Response) => {
-  const parsed = checkoutSchema.safeParse(req.query);
+  const parsed = checkoutSchema.safeParse(req.body);
   if (!parsed.success) {
     return sendValidationError(res, parsed.error);
   }

@@ -9,6 +9,7 @@ import ubicacionesRoutes from "./routes/ubicaciones.routes";
 import metodosPagoRoutes from "./routes/metodos-pago.routes";
 import checkoutRoutes from "./routes/checkout.routes";
 import pedidosRoutes from "./routes/pedidos.routes";
+import { comentarioRouter } from "./routes/comentario.route";
 
 const app = express();
 
@@ -47,6 +48,7 @@ app.use("/api/ubicaciones", ubicacionesRoutes);
 app.use("/api/payment-methods", metodosPagoRoutes);
 app.use("/api/checkout", checkoutRoutes);
 app.use("/api/pedidos", pedidosRoutes);
+app.use("/api/comentarios", comentarioRouter);
 
 // Error handlers
 app.use(notFoundHandler);

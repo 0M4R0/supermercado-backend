@@ -46,9 +46,16 @@ function toProductListItem(row: ProductoListItem): ProductListItemDto {
 }
 
 function toComment(row: ComentarioRow): ProductCommentDto {
+  const perfil = row.perfil as { nombre?: string | null } | null | undefined;
+
   return {
     id: Number(row.id),
+    user_id: String(row.user_id ?? ""),
     producto_id: Number(row.producto_id),
+    user: {
+      username: String(row.username ?? "Usuario"),
+      nombre: perfil?.nombre ?? null,
+    },
     description: String(row.description ?? ""),
     calificacion: Number(row.calificacion),
     activo: Boolean(row.activo ?? true),
